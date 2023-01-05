@@ -1,14 +1,7 @@
-##TODO
-
-#Test dynamic size movement
-#Disable generation on non-move
-#Endgame state
-#Score system
-
-
 import sys
 import pygame
 import random
+import time
 
 pygame.init()
 pygame_window_title = '2048'
@@ -226,6 +219,79 @@ def highestTile(cubes):
             highest = cube.size
     return highest
 
+def downAction(screen, cubes, n):
+    i = 0
+    while sendAllDown(cubes):
+        time.sleep(n)
+        refreshScreen(screen, cubes)
+        i += 1
+    if i != 0:
+        genRandom(cubes)
+
+def upAction(screen, cubes, n):
+    i = 0
+    while sendAllUp(cubes):
+        time.sleep(n)
+        refreshScreen(screen, cubes)
+        i += 1
+    if i != 0:
+        genRandom(cubes)
+
+def leftAction(screen, cubes, n):
+    i = 0
+    while sendAllLeft(cubes):
+        time.sleep(n)
+        refreshScreen(screen, cubes)
+        i += 1
+    if i != 0:
+        genRandom(cubes)
+
+def rightAction(screen, cubes, n):
+    i = 0
+    while sendAllRight(cubes):
+        time.sleep(n)
+        refreshScreen(screen, cubes)
+        i += 1
+    if i != 0:
+        genRandom(cubes)
+
+def refreshScreen(screen, cubes):
+    SCREENX = screen.get_width()
+    SCREENY = screen.get_height()
+
+    screen.fill((205, 193, 180)) #Background
+
+    f = pygame.font.SysFont(name = 'comic_sans_ms', size = SCREENX // 20, bold = False, italic = True)
+
+    for cube in cubes:
+        pygame.draw.rect(screen, cubeColors[cube.size], cube.get_rect(SCREENX, SCREENY))
+        label = f.render(str(cube.size), True, (0, 0, 0))
+        labelRect = label.get_rect()
+        labelRect.center = (cube.x * SCREENX / float(rowX) + SCREENX / float(rowX * 2), cube.y * SCREENY / float(rowY) + SCREENY / float(rowY * 2))
+        screen.blit(label, labelRect)
+    
+    for i in range(rowY): #Lines
+        pygame.draw.line(screen, (187, 173, 160), (0,SCREENY * i / float(rowY)), (SCREENX, SCREENY * i / float(rowY)), width=min(SCREENX, SCREENY)//60)
+
+    for i in range(rowX):
+        pygame.draw.line(screen, (187, 173, 160), (SCREENX * i / float(rowX), 0), (SCREENX * i / float(rowX), SCREENY), width=min(SCREENX, SCREENY)//60)
+
+    
+    pygame.display.flip() # refresh the screen.
+
+def getInput(screen, cubes, event):
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        genRandom(cubes)
+    if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_DOWN:
+            downAction(screen, cubes, 0.1)    
+        if event.key == pygame.K_UP:
+            upAction(screen, cubes, 0.1)
+        if event.key == pygame.K_LEFT:
+            leftAction(screen, cubes, 0.1)
+        if event.key == pygame.K_RIGHT:
+            rightAction(screen, cubes, 0.1)
+
 score = 0
 gameRunning = True
 
@@ -239,107 +305,13 @@ def main():
     genRandom(cubes)
 
     while gameRunning:
-            
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:    
                 pygame.quit()
                 sys.exit()
-
-##            if event.type == pygame.MOUSEBUTTONDOWN:
-##                genRandom(cubes)
-##            if event.type == pygame.KEYDOWN:
-##                if event.key == pygame.K_DOWN:
-##                    i = 0
-##                    while sendAllDown(cubes):
-##                        i += 1
-##                    if i != 0:
-##                        genRandom(cubes)
-##                        
-##                if event.key == pygame.K_UP:
-##                    i = 0
-##                    while sendAllUp(cubes):
-##                        i += 1
-##                    if i != 0:
-##                        genRandom(cubes)
-##                    
-##                if event.key == pygame.K_LEFT:
-##                    i = 0
-##                    while sendAllLeft(cubes):
-##                        i += 1
-##                    if i != 0:
-##                        genRandom(cubes)
-##                    
-##                if event.key == pygame.K_RIGHT:
-##                    i = 0
-##                    while sendAllRight(cubes):
-##                        i += 1
-##                    if i != 0:
-##                        genRandom(cubes)
-##                #print(score)
-
-        n = random.randint(0,4)
-        if n == 0:
-            i = 0
-            while sendAllDown(cubes):
-                i += 1
-            if i != 0:
-                genRandom(cubes)
-                
-        if n == 1:
-            i = 0
-            while sendAllUp(cubes):
-                i += 1
-            if i != 0:
-                genRandom(cubes)
-            
-        if n == 2:
-            i = 0
-            while sendAllLeft(cubes):
-                i += 1
-            if i != 0:
-                genRandom(cubes)
-            
-        if n == 3:
-            i = 0
-            while sendAllRight(cubes):
-                i += 1
-            if i != 0:
-                genRandom(cubes)
+            getInput(screen, cubes, event)
         
-        SCREENX = screen.get_width()
-        SCREENY = screen.get_height()
-
-        screen.fill((205, 193, 180)) #Background
-
-        f = pygame.font.SysFont(name = 'comic_sans_ms', size = SCREENX // 20, bold = False, italic = True)
-
-        for cube in cubes:
-            pygame.draw.rect(screen, cubeColors[cube.size], cube.get_rect(SCREENX, SCREENY))
-            label = f.render(str(cube.size), True, (0, 0, 0))
-            labelRect = label.get_rect()
-            labelRect.center = (cube.x * SCREENX / float(rowX) + SCREENX / float(rowX * 2), cube.y * SCREENY / float(rowY) + SCREENY / float(rowY * 2))
-            screen.blit(label, labelRect)
+        refreshScreen(screen, cubes)
         
-        for i in range(rowY): #Lines
-            pygame.draw.line(screen, (187, 173, 160), (0,SCREENY * i / float(rowY)), (SCREENX, SCREENY * i / float(rowY)), width=min(SCREENX, SCREENY)//60)
-
-        for i in range(rowX):
-            pygame.draw.line(screen, (187, 173, 160), (SCREENX * i / float(rowX), 0), (SCREENX * i / float(rowX), SCREENY), width=min(SCREENX, SCREENY)//60)
-
-        
-        pygame.display.flip() # refresh the screen.
     return (score, highestTile(cubes))
-
-
-highest = []
-scores = []
-
-for i in range(1, 10):
-    a = main()
-    highest.append(a[1])
-    scores.append(a[0])
-
-import matplotlib    
-from matplotlib import pyplot
-matplotlib.pyplot.scatter(highest,scores)
-matplotlib.pyplot.show()
