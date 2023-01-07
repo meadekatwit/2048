@@ -3,21 +3,14 @@ import pygame
 import random
 import time
 
-pygame.init()
-pygame_window_title = '2048'
-
-pygame.display.set_caption(pygame_window_title)
-
+#Default screen size
 SCREENX = 600
 SCREENY = 600
 
-rowX = 4
-rowY = 4
+rowX = 4 #Number of rows
+rowY = 4 #Number of columns
 
-screen = pygame.display.set_mode((SCREENX, SCREENY), pygame.RESIZABLE)
-
-screen.fill((205, 193, 180))
-
+#Default colors of cubes (for visual display)
 cubeColors = {
     2:      (239, 225, 212),
     4:      (239, 222, 194),
@@ -34,23 +27,28 @@ cubeColors = {
     }
 
 class Cube:
+    """Cube object, holds the coordinates and size of tile on board"""
     def __init__(self, size, x, y):
         self.size = size
         self.x = x
         self.y = y
 
     def get_rect(self, SCREENX, SCREENY):
+        """Get pygame rectangle of coordinate"""
         return pygame.Rect(SCREENX * self.x /float(rowX), SCREENY * self.y / float(rowY), SCREENX / float(rowX), SCREENY / float(rowY))
 
     def __str__(self):
+        """Returns string value of self"""
         return "Cube of value " + str(self.size) + " at (" + str(self.x) + "," + str(self.y) + ")"
 
     def __del__(self):
+        """Returns deletion of code"""
         return "Deleted cube of value " + str(self.size) + " at (" + str(self.x) + "," + str(self.y) + ")"
 
     #Move Cube------------
 
     def moveDown(self, cubes):
+        """Moves the cube down one unit, relative to board size and other cubes, merging if neccessary."""
         global score
         if self.y == rowY - 1: #at bottom
             return False
@@ -67,6 +65,7 @@ class Cube:
                 return True
 
     def moveUp(self, cubes):
+        """Moves the cube up one unit, relative to board size and other cubes, merging if neccessary."""
         global score
         if self.y == 0:
             return False #at top
@@ -83,6 +82,7 @@ class Cube:
                 return True
 
     def moveLeft(self, cubes):
+        """Moves the cube left one unit, relative to board size and other cubes, merging if neccessary."""
         global score
         if self.x == 0:
             return False #at left
@@ -99,6 +99,7 @@ class Cube:
                 return True
 
     def moveRight(self, cubes):
+        """Moves the cube right one unit, relative to board size and other cubes, merging if neccessary."""
         global score
         if self.x == rowX - 1:
             return False #at right
@@ -115,12 +116,14 @@ class Cube:
                 return True
 
 def findCube(x, y, cubes):
+    """Returns cube with coordinates X and Y on list of cubes"""
     for cube in cubes:
         if (cube.x == x and cube.y == y):
             return cube
     return False
 
 def getCubeArray(cubes):
+    """Returns 2D array of tile based on whether or not a cube exists there"""
     a = [[False]*rowX for i in range(rowY)]
     for cube in cubes:
         if cube.x >= rowX or cube.y >= rowY:
@@ -130,6 +133,7 @@ def getCubeArray(cubes):
     return a
         
 def checkFull(cubeArray):
+    """Returns boolean value of whether or not a cubeArray is full or not"""
     for i in cubeArray:
         for i2 in i:
             if not i2:
@@ -137,6 +141,7 @@ def checkFull(cubeArray):
     return True
 
 def checkPossible(cubes):
+    """Checks if a further move is possible"""
     if not checkFull(getCubeArray(cubes)):
         return True
     for cube in cubes:
@@ -156,6 +161,7 @@ def checkPossible(cubes):
             
 
 def sendAllDown(cubes):
+    """Sends all cubes one row down"""
     result = False
     for y in range(rowY-1,-1,-1):
         for x in range(rowX):
@@ -166,6 +172,7 @@ def sendAllDown(cubes):
     return result
 
 def sendAllUp(cubes):
+    """Sends all cubes one row up"""
     result = False
     for y in range(0,rowY):
         for x in range(rowX):
@@ -176,6 +183,7 @@ def sendAllUp(cubes):
     return result
 
 def sendAllLeft(cubes):
+    """Sends all cubes one row left"""
     result = False
     for x in range(0,rowX):
         for y in range(rowY):
@@ -186,6 +194,7 @@ def sendAllLeft(cubes):
     return result
 
 def sendAllRight(cubes):
+    """Sends all cubes one row right"""
     result = False
     for x in range(rowX-1,-1,-1):
         for y in range(rowY):
@@ -196,6 +205,7 @@ def sendAllRight(cubes):
     return result
 
 def genRandom(cubes):
+    """Generates a new random cube on the board. Returns boolean if succesful or not"""
     cubeArray = getCubeArray(cubes)
     if checkFull(cubeArray):
         return False
@@ -213,6 +223,7 @@ def genRandom(cubes):
     return True
 
 def highestTile(cubes):
+    """Returns the highest tile on the board"""
     highest = 2
     for cube in cubes:
         if cube.size > highest:
@@ -220,6 +231,7 @@ def highestTile(cubes):
     return highest
 
 def downAction(screen, cubes, n):
+    """Action of moving down with delay of n seconds"""
     i = 0
     while sendAllDown(cubes):
         time.sleep(n)
@@ -228,8 +240,11 @@ def downAction(screen, cubes, n):
         i += 1
     if i != 0:
         genRandom(cubes)
+        return True
+    return False
 
 def upAction(screen, cubes, n):
+    """Action of moving up with delay of n seconds"""
     i = 0
     while sendAllUp(cubes):
         time.sleep(n)
@@ -238,8 +253,11 @@ def upAction(screen, cubes, n):
         i += 1
     if i != 0:
         genRandom(cubes)
+        return True
+    return False
 
 def leftAction(screen, cubes, n):
+    """Action of moving left with delay of n seconds"""
     i = 0
     while sendAllLeft(cubes):
         time.sleep(n)
@@ -248,8 +266,11 @@ def leftAction(screen, cubes, n):
         i += 1
     if i != 0:
         genRandom(cubes)
+        return True
+    return False
 
 def rightAction(screen, cubes, n):
+    """Action of moving right with delay of n seconds"""
     i = 0
     while sendAllRight(cubes):
         time.sleep(n)
@@ -258,14 +279,17 @@ def rightAction(screen, cubes, n):
         i += 1
     if i != 0:
         genRandom(cubes)
+        return True
+    return False
 
 def refreshScreen(screen, cubes):
+    """Updates the pygame display"""
     SCREENX = screen.get_width()
     SCREENY = screen.get_height()
 
     screen.fill((205, 193, 180)) #Background
 
-    f = pygame.font.SysFont(name = 'comic_sans_ms', size = SCREENX // 20, bold = False, italic = True)
+    f = pygame.font.SysFont(name = 'comic_sans_ms', size = SCREENX // (max(rowX, rowY) * 4), bold = False, italic = True)
 
     for cube in cubes:
         try:
@@ -286,25 +310,41 @@ def refreshScreen(screen, cubes):
     
     pygame.display.flip() # refresh the screen.
 
+keyReady = True
 def getInput(screen, cubes, event):
-    print("a")
-    if event.type == pygame.MOUSEBUTTONDOWN:
-        genRandom(cubes)
-    if event.type == pygame.KEYDOWN:
+    """Default input configuration. Intended to be rewritten for algorithms. User-defined by default."""
+    global keyReady
+    if event.type == pygame.KEYUP:
+        keyReady = True
+    if event.type == pygame.KEYDOWN and keyReady:
+        keyReady = False
         if event.key == pygame.K_DOWN:
-            downAction(screen, cubes, 0.1)    
+            downAction(screen, cubes, 0.05)    
         if event.key == pygame.K_UP:
-            upAction(screen, cubes, 0.1)
+            upAction(screen, cubes, 0.05)
         if event.key == pygame.K_LEFT:
-            leftAction(screen, cubes, 0.1)
+            leftAction(screen, cubes, 0.05)
         if event.key == pygame.K_RIGHT:
-            rightAction(screen, cubes, 0.1)
+            rightAction(screen, cubes, 0.05)
+
+def quit():
+    pygame.quit()
 
 score = 0
 gameRunning = True
 display = True
 
 def main():
+    """Run game of 2048"""
+    pygame.init()
+    pygame_window_title = '2048'
+
+    pygame.display.set_caption(pygame_window_title)
+    
+    screen = pygame.display.set_mode((SCREENX, SCREENY), pygame.RESIZABLE)
+
+    screen.fill((205, 193, 180))
+    
     global score
     global gameRunning
     gameRunning = True
