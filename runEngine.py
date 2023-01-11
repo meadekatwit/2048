@@ -53,7 +53,7 @@ highestValues = []
 
 barX = ["Average Score", "Average Highest Value"]
 
-n = 1
+n = 10
 z = 0
 
 if "userPlaying" in sys.argv:

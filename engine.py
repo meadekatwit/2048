@@ -32,6 +32,7 @@ class Cube:
         self.size = size
         self.x = x
         self.y = y
+        self.merged = False
 
     def get_rect(self, SCREENX, SCREENY):
         """Get pygame rectangle of coordinate"""
@@ -55,10 +56,11 @@ class Cube:
         else:
             below = findCube(self.x, self.y + 1, cubes)
             if (below):
-                if (below.size == self.size): #Merge
+                if (below.size == self.size and not below.merged and not self.merged): #Merge
                     below.size *= 2
                     score += below.size
                     cubes.remove(self)
+                    below.merged = True
                     return True
             else:
                 self.y = self.y + 1 #Move down
@@ -72,10 +74,11 @@ class Cube:
         else:
             above = findCube(self.x, self.y - 1, cubes)
             if (above):
-                if (above.size == self.size): #Merge
+                if (above.size == self.size and not above.merged and not self.merged): #Merge
                     above.size *= 2
                     score += above.size
                     cubes.remove(self)
+                    above.merged = True
                     return True
             else:
                 self.y = self.y - 1 #Move up
@@ -89,10 +92,11 @@ class Cube:
         else:
             adj = findCube(self.x - 1, self.y, cubes)
             if (adj):
-                if (adj.size == self.size): #Merge
+                if (adj.size == self.size and not adj.merged and not self.merged): #Merge
                     adj.size *= 2
                     score += adj.size
                     cubes.remove(self)
+                    adj.merged = True
                     return True
             else:
                 self.x = self.x - 1 #Move left
@@ -106,10 +110,11 @@ class Cube:
         else:
             adj = findCube(self.x + 1, self.y, cubes)
             if (adj):
-                if (adj.size == self.size): #Merge
+                if (adj.size == self.size and not adj.merged and not self.merged): #Merge
                     adj.size *= 2
                     score += adj.size
                     cubes.remove(self)
+                    adj.merged = True
                     return True
             else:
                 self.x = self.x + 1 #Move left
@@ -238,6 +243,10 @@ def downAction(screen, cubes, n):
         if(display):
             refreshScreen(screen, cubes)
         i += 1
+
+    for cube in cubes:
+        cube.merged = False
+        
     if i != 0:
         genRandom(cubes)
         return True
@@ -251,6 +260,10 @@ def upAction(screen, cubes, n):
         if(display):
             refreshScreen(screen, cubes)
         i += 1
+
+    for cube in cubes:
+        cube.merged = False
+        
     if i != 0:
         genRandom(cubes)
         return True
@@ -264,6 +277,10 @@ def leftAction(screen, cubes, n):
         if(display):
             refreshScreen(screen, cubes)
         i += 1
+
+    for cube in cubes:
+        cube.merged = False
+    
     if i != 0:
         genRandom(cubes)
         return True
@@ -277,6 +294,10 @@ def rightAction(screen, cubes, n):
         if(display):
             refreshScreen(screen, cubes)
         i += 1
+
+    for cube in cubes:
+        cube.merged = False
+        
     if i != 0:
         genRandom(cubes)
         return True
@@ -350,8 +371,14 @@ def main():
     gameRunning = True
     score = 0
     cubes = []
-    genRandom(cubes)
-    genRandom(cubes)
+
+    cubes.append(Cube(16,0,0))
+    cubes.append(Cube(8,0,1))
+    cubes.append(Cube(4,0,2))
+    cubes.append(Cube(4,0,3))
+    
+    #genRandom(cubes)
+    #genRandom(cubes)
     event = "n"
 
     while gameRunning:
